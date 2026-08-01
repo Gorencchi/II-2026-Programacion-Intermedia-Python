@@ -6,8 +6,9 @@ class administrador(Usuario):
     
     def agregar_usuario(self, usuario):
         self.usuarios.append(usuario)
+        print(f"{usuario.username} ha sido agregado por {self.username}.")
     
     def eliminar_usuario(self, usuario):
         if usuario in self.usuarios:
             self.usuarios.remove(usuario)
-        
+        return f"{usuario.username} ha sido eliminado por {self.username}."
