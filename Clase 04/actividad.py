@@ -1,5 +1,5 @@
 import pandas as pd
-import matplotlib.pyplot as mt
+import matplotlib.pyplot as plt
 
 df = pd.read_csv(r'Clase 04\estudiantes.csv')
 print(df)
@@ -36,8 +36,10 @@ print(new_df[["Calificacion", "Peso", "HorasEstudio"]].mean())
 print(new_df[["Calificacion", "Peso", "HorasEstudio"]].corr())
 
 #grafico
-new_df.sort_values(by="Estatura", ascending=False, implace=True)
-new_df.plot(kind="line"
-            x="Estatura"
-            y="Peso")
+new_df = new_df.sort_values(by="Estatura", ascending=False)
+new_df.plot(
+    kind="line",
+    x="Estatura",
+    y="Peso"
+)
 plt.show()
