@@ -4,23 +4,40 @@ import matplotlib.pyplot as mt
 df = pd.read_csv(r'Clase 04\estudiantes.csv')
 print(df)
 #Borrar filas con valores vacios :pp
-df.fillna(0, inplace=True)
+df = df.dropna()
+#Valores erroneos
+for i in df.index:
+    if not df.loc[i, "Edad"].isnumeric():
+        df = df.drop(i)
+    elif int(df.loc[i, "Edad"]) < 0 and int(df.loc[i, "Edad"]) > 120:
+        df.drop(i)
+print(df)
+
+#borrar datos duplicados
+new_df = df
+for i in df.index:
+    for j in df.index:
+        if i != j:
+            if (df.loc[i, "Nombre"] == df.loc[j, "Nombre"]
+                and df.loc[i, "Edad"] == df.loc[j, "Edad"]
+                and df.loc[i, "Calificacion"] == df.loc[j, "Calificacion"]
+                and df.loc[i, "Estatura"] == df.loc[j, "Estatura"]
+                and df.loc[i, "Peso"] == df.loc[j, "Peso"]
+                and df.loc[i, "HorasEstudio"] == df.loc[j, "HorasEstudio"]
+                ):
+                    new_df = new_df.drop(j)
 
 #reemplazar valores vacios por la media de la columna :pp
 df.fillna({col: df[col].mean() for col in df.columns if df[col].isnull().any()}, inplace=True)
-
-#valores erroneos, se corrige el formato de la columna de edad :pp
-df.dropna(subset=["Edad"], inplace=True)
-
-#Reemplazar valores erroneos :pp
-
-#correlaciones
-df.corr()
-print("Correlacion entre edad y calificacion:", df["Edad"].corr(df["Calificacion"]))
+print(df)
 #promedios
-x = df["Edad"].mean()
-print("El promedio de edad es:", x)
-y = df["Calificacion"].mean()
-print("El promedio de calificacion es:", y)
-u = df["Edad"].mean()
-print("El promedio de edad es:", u)
+print(new_df[["Calificacion", "Peso", "HorasEstudio"]].mean())
+#correlaciones
+print(new_df[["Calificacion", "Peso", "HorasEstudio"]].corr())
+
+#grafico
+new_df.sort_values(by="Estatura", ascending=False, implace=True)
+new_df.plot(kind="line"
+            x="Estatura"
+            y="Peso")
+plt.show()
