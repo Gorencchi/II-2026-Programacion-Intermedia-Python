@@ -52,34 +52,48 @@ class RegistroLicencias:
         )
 
     def preguntar_ia(self, mensaje, historial):
+        if mensaje is None or not str(mensaje).strip():
+            yield "Escribe una pregunta válida para la IA."
+            return
+
         yield "Consultando a la IA y analizando las licencias..."
 
         df = self.obtener_info()
-        contexto_bd = df.to_string(index=False) if not df.empty else "No hay licencias registradas aún en el sistema"
-        
-        contexto = f"""
-        Estos son los datos de las licencias registradas en el sistema:
+        contexto_bd = df.to_string(index=False) if not df.empty else "No hay licencias registradas aún en el sistema."
 
+        contexto = f"""
+        Eres un analista de datos especializado en licencias.
+        Estos son los datos disponibles en el sistema:
         {contexto_bd}
 
-        Responde preguntas sobre estos datos.
-        No inventes información que no aparezca en los datos, asi mismo responde de manera sencilla y amable.
+        Instrucciones obligatorias:
+        - Responde solo con la información que exista en los datos.
+        - Si no hay datos, di claramente que no hay licencias registradas.
+        - No inventes IDs, nombres, fechas ni tipos de licencias.
+        - Responde de forma breve, clara y amable.
+        - Si el usuario pide contar, filtrar o comparar, hazlo solo con la información real del CSV.
         """
-        
+
         mensajes = [{"role": "system", "content": contexto}]
-        for human, assistant in historial:
-            mensajes.append({"role": "user", "content": human})
-            mensajes.append({"role": "assistant", "content": assistant})
-        mensajes.append({"role": "user", "content": mensaje})
+        historial = historial or []
+
+        for item in historial:
+            if isinstance(item, tuple) and len(item) >= 2:
+                human, assistant = item
+                mensajes.append({"role": "user", "content": str(human)})
+                mensajes.append({"role": "assistant", "content": str(assistant)})
+
+        mensajes.append({"role": "user", "content": str(mensaje).strip()})
 
         try:
             respuesta = ol.chat(
                 model=self.modelo_ollama,
-                messages=mensajes
+                messages=mensajes,
+                options={"temperature": 0.1}
             )
             yield respuesta["message"]["content"]
         except Exception as e:
-            yield f"Error al conectar con Ollama. Asegúrate de tenerlo abierto. Detalle: {e}"
+            yield f"Error al conectar con Ollama. Asegúrate de tenerlo abierto y que el modelo '{self.modelo_ollama}' exista. Detalle: {e}"
 
     # -------- Interfaz Gráfica ----------- :P
     def InterfazGradio(self):
